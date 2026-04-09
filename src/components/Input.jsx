@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Card from "./Card";
+import useDebounce from "../hooks/useDebounce.js";
 
 function Input() {
   const [inputVal, setInputVal] = useState("");
@@ -8,41 +9,39 @@ function Input() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
 
-  const fetchGithubUser = async (username) => {
-    setLoading(true);
-    setError("");
-    setUser(null);
-    try {
-      const res = await axios.get(
-        `https://api.github.com/search/users?q=${username}`,
-      );
-      //   console.log(res);
-      if (res.data.items && res.data.items.length > 0) {
-        setUser(res.data.items[0]);
-      } else {
-        setError("No user found..");
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const debouncedSearch = useDebounce(inputVal, 500);
 
   useEffect(() => {
-    if (!inputVal.trim()) {
+    if (!debouncedSearch.trim()) {
       setUser(null);
       setError("");
       setLoading(false);
       return;
     }
 
-    const debouncedSearch = setTimeout(() => {
-      fetchGithubUser(inputVal);
-    }, 500);
+    const fetchGithubUser = async (username) => {
+      setLoading(true);
+      setError("");
+      setUser(null);
+      try {
+        const res = await axios.get(
+          `https://api.github.com/search/users?q=${username}`,
+        );
+        //   console.log(res);
+        if (res.data.items && res.data.items.length > 0) {
+          setUser(res.data.items[0]);
+        } else {
+          setError("No user found..");
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(debouncedSearch);
-  }, [inputVal]);
+    fetchGithubUser(debouncedSearch);
+  }, [debouncedSearch]);
 
   return (
     <div className="flex flex-col items-center max-w-2xl w-full mx-auto sm:mt-10 p-4 bg-white rounded-2xl shadow-lg border border-slate-100">

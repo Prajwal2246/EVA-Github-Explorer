@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { filterAndSortRepos, getUniqueLanguages } from "../utils/repoUtlis";
 
 function RepoCard({ repos }) {
   const [sortby, setSortBy] = useState("");
@@ -6,19 +7,8 @@ function RepoCard({ repos }) {
 
   //   console.log(repos);
 
-  let languages = Array.from(new Set(repos.map((item) => item.language)));
-  languages = languages.filter((lang) => lang != null);
-
-  let repoCopy = [...repos];
-  if (filterLang) {
-    repoCopy = repoCopy.filter((repo) => repo.language === filterLang);
-  }
-
-  if (sortby === "stars") {
-    repoCopy.sort((a, b) => b.stargazers_count - a.stargazers_count);
-  } else if (sortby === "forks") {
-    repoCopy.sort((a, b) => b.forks_count - a.forks_count);
-  }
+  const languages = getUniqueLanguages(repos);
+  const repoCopy = filterAndSortRepos(repos, filterLang, sortby);
 
   return (
     <div className="mt-6 w-full">
