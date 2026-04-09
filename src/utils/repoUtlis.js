@@ -6,9 +6,6 @@ export const getUniqueLanguages = (repos) => {
 export const filterAndSortRepos = (repos, filterLang, sortby) => {
   let repoCopy = [...repos];
 
-  let languages = Array.from(new Set(repos.map((item) => item.language)));
-  languages = languages.filter((lang) => lang != null);
-
   if (filterLang) {
     repoCopy = repoCopy.filter((repo) => repo.language === filterLang);
   }
